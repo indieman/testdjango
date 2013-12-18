@@ -23,7 +23,7 @@ env.hosts = ['%(project_user)s@192.168.12.2' % env]
 env.virtualenv_path = '/usr/local/virtualenvs/%(project_name)s' % env
 env.path = '/srv/sites/%(project_name)s' % env
 env.manage_path = '/srv/sites/%(project_name)s/%(project_name)s' % env
-env.repository_url = ''
+env.repository_url = 'https://github.com/indieman/testdjango.git'
 
 
 @task
@@ -70,8 +70,6 @@ def setup():
     require.postgres.server()
     require.postgres.user(env.db_user, password=env.db_pass, createdb=False, createrole=True)
     require.postgres.database(env.db_name, env.db_user)
-
-    set_rabbitmq()
 
     with cd(env.manage_path):
         run('chmod ogu+x manage.py')

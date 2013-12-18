@@ -12,3 +12,4 @@ testdjango.db
 local_settings.py
 media/**
 static/**
+log/**
