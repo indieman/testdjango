@@ -78,7 +78,7 @@ def setup():
 
     # Require a supervisor process for our app
     require.supervisor.process(env.project_name,
-                               command='%(virtualenv_path)s/bin/gunicorn -c %(path)s/_deploy/gunicorn.conf.py -u %(project_user)s lookido.wsgi:application' % env,
+                               command='%(virtualenv_path)s/bin/gunicorn -c %(path)s/_deploy/gunicorn.conf.py -u %(project_user)s testdjango.wsgi:application' % env,
                                directory=env.manage_path,
                                user=env.project_user,
                                stdout_logfile='%(path)s/log/testdjango.log' % env)
