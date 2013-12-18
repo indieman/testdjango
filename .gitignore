@@ -1,0 +1,14 @@
+env
+pid
+*.pyc
+*.out
+*.bak
+*.log
+*.orig
+.idea
+.project
+.pydevproject
+testdjango.db
+local_settings.py
+media/**
+static/**

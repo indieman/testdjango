@@ -1,0 +1,4 @@
+Fabric==1.8.0
+-e git+git://github.com/ronnix/fabtools.git#egg=fabtools
+pudb
+-r base.txt
