@@ -10,6 +10,7 @@ pid
 .pydevproject
 testdjango.db
 local_settings.py
+server_settings.py
 media/**
 static/**
 log/**

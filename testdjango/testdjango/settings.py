@@ -159,7 +159,6 @@ try:
 except NameError:
     try:
         from local_settings import *
-        # SERVER = False
     except ImportError:
         pass
 

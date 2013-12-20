@@ -1,9 +1,9 @@
 __author__ = 'indieman'
 
 from fabric.contrib import files
-import sys, os, fabtools, fabric
+import sys, os, fabtools, fabric, fileinput, random, string
 from fabric.api import *
-from fabtools import require
+from fabtools import require, files
 from fabtools.python import virtualenv, install_pip
 from fabtools.files import watch
 from fabtools.service import restart
@@ -12,18 +12,34 @@ from fabtools.utils import run_as_root
 
 env.project_name = 'testdjango'
 env.db_name = env.project_name
-env.db_pass = 'NCkHmNq~A*XT'
+env.db_pass = ''
 env.db_user = env.project_name
 env.project_user = env.project_name
 
 env.shell = '/bin/bash -c'
 
 env.hosts = ['%(project_user)s@192.168.12.2' % env]
+env.repository_url = 'https://github.com/indieman/testdjango.git'
 
 env.virtualenv_path = '/usr/local/virtualenvs/%(project_name)s' % env
 env.path = '/srv/sites/%(project_name)s' % env
 env.manage_path = '/srv/sites/%(project_name)s/%(project_name)s' % env
-env.repository_url = 'https://github.com/indieman/testdjango.git'
+env.settings_path = '/srv/sites/%(project_name)s/%(project_name)s/%(project_name)s' % env
+
+
+def create_password(length = 13):
+    length = 13
+    chars = string.ascii_letters + string.digits + '!@#$%^&*()'
+    random.seed = (os.urandom(1024))
+
+    passwd = ''.join(random.choice(chars) for i in range(length))
+    return passwd
+
+
+def replace_line_in_file(file, sourceText, replaceText):
+    for line in fileinput.FileInput(file, inplace = 1):
+        line = line.replace(sourceText, replaceText)
+        print line,
 
 
 @task
@@ -59,12 +75,13 @@ def setup():
 
     require.python.virtualenv(env.virtualenv_path, use_sudo=False)
 
-    # with watch('/etc/sudoers') as config:
-    #     comment('/etc/sudoers', 'Defaults    requiretty')
-
     require.python.virtualenv(env.virtualenv_path, use_sudo=False)
     with virtualenv(env.virtualenv_path):
         require.python.requirements(os.path.join(env.path, 'reqs', 'server.txt'))
+
+    env.db_pass = create_password()
+    files.upload_template('%(project_name)s/server_settings.py' % env, '%(settings_path)s/server_settings.py' % env,
+                          context={'DB_PASSWORD': env.db_pass}, use_jinja=True)
 
     # Require a PostgreSQL server
     require.postgres.server()
@@ -78,7 +95,8 @@ def setup():
 
     # Require a supervisor process for our app
     require.supervisor.process(env.project_name,
-                               command='%(virtualenv_path)s/bin/gunicorn -c %(path)s/_deploy/gunicorn.conf.py -u %(project_user)s testdjango.wsgi:application' % env,
+                               command='%(virtualenv_path)s/bin/gunicorn -c %(path)s/_deploy/gunicorn.conf.py \
+                               -u %(project_user)s testdjango.wsgi:application' % env,
                                directory=env.manage_path,
                                user=env.project_user,
                                stdout_logfile='%(path)s/log/testdjango.log' % env)
@@ -132,22 +150,16 @@ def manage(command, noinput=True):
             run('%(manage_path)s/manage.py ' % env + command)
 
 
-@task
-def migrate(self, params='', do_backup=True):
-    """ Runs migrate management command. Database backup is performed
-    before migrations until ``do_backup=False`` is passed. """
-    manage('migrate')
+# @task
+# def migrate(self, params='', do_backup=True):
+#     """ Runs migrate management command. Database backup is performed
+#     before migrations until ``do_backup=False`` is passed. """
+#     manage('migrate')
 
-@task
-def syncdb(self, params=''):
-    """ Runs syncdb management command. """
-    manage('syncdb')
-
-
-def get_home_dir(username):
-    if username == 'root':
-        return '/root/'
-    return '/home/%s/' % username
+# @task
+# def syncdb(self, params=''):
+#     """ Runs syncdb management command. """
+#     manage('syncdb')
 
 
 @task
@@ -168,7 +180,12 @@ def create_project_user(pub_key_file, username=None):
 
     with (settings(warn_only=True)):
         sudo('adduser %s --disabled-password --gecos ""' % username)
-    home_dir = get_home_dir(username)
+
+    if username == 'root':
+        home_dir = '/root/'
+    else:
+        home_dir = '/home/%s/' % username
+
     with cd(home_dir):
         sudo('mkdir -p .ssh')
         files.append('.ssh/authorized_keys', ssh_key, use_sudo=True)
