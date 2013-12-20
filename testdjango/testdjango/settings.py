@@ -163,13 +163,4 @@ except NameError:
         pass
 
 if SERVER:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'testdjango',
-            'USER': 'testdjango',
-            'PASSWORD': 'NCkHmNq~A*XT',
-            'HOST': '127.0.0.1',
-            'PORT': '',
-            }
-    }
+    from server_settings import *

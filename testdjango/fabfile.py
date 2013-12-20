@@ -3,9 +3,9 @@ __author__ = 'indieman'
 from fabric.contrib import files
 import sys, os, fabtools, fabric, fileinput, random, string
 from fabric.api import *
-from fabtools import require, files
+from fabtools import require
 from fabtools.python import virtualenv, install_pip
-from fabtools.files import watch
+from fabtools.files import watch, upload_template
 from fabtools.service import restart
 from fabric.contrib.files import comment, uncomment
 from fabtools.utils import run_as_root
@@ -34,12 +34,6 @@ def create_password(length = 13):
 
     passwd = ''.join(random.choice(chars) for i in range(length))
     return passwd
-
-
-def replace_line_in_file(file, sourceText, replaceText):
-    for line in fileinput.FileInput(file, inplace = 1):
-        line = line.replace(sourceText, replaceText)
-        print line,
 
 
 @task
@@ -80,9 +74,10 @@ def setup():
         require.python.requirements(os.path.join(env.path, 'reqs', 'server.txt'))
 
     env.db_pass = create_password()
-    files.upload_template('%(project_name)s/server_settings.py' % env, '%(settings_path)s/server_settings.py' % env,
+    upload_template('%(project_name)s/server_settings.py' % env, '%(settings_path)s/server_settings.py' % env,
                           context={'DB_PASSWORD': env.db_pass}, use_jinja=True)
 
+    print env.db_pass
     # Require a PostgreSQL server
     require.postgres.server()
     require.postgres.user(env.db_user, password=env.db_pass, createdb=False, createrole=True)
@@ -148,18 +143,6 @@ def manage(command, noinput=True):
             run('%(manage_path)s/manage.py ' % env + command + ' --noinput')
         else:
             run('%(manage_path)s/manage.py ' % env + command)
-
-
-# @task
-# def migrate(self, params='', do_backup=True):
-#     """ Runs migrate management command. Database backup is performed
-#     before migrations until ``do_backup=False`` is passed. """
-#     manage('migrate')
-
-# @task
-# def syncdb(self, params=''):
-#     """ Runs syncdb management command. """
-#     manage('syncdb')
 
 
 @task
