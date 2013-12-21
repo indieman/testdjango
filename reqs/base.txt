@@ -2,3 +2,4 @@ Django==1.5.4
 south==0.8.2
 django-suit==0.2.5
 jinja2
+pytils
