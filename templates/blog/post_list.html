@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load comments %}
+{% load pytils_numeral %}
+{% block content %}
+    {% for post in object_list %}
+        <p>{{ post.created }}</p>
+        <h2><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h2>
+        {% get_comment_count for post as comment_count %}
+        {{ comment_count }} {{ comment_count|choose_plural:"комментарий, комментария, комментариев" }}
+    {% empty %}
+    <p>Нет постов</p>
+    {% endfor %}
+
+{% endblock %}

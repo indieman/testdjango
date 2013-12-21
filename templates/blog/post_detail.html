@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load comments %}
+{% block content %}
+    <p>{{ post.created }}</p>
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.text }}</p>
+    <h2>Теги поста:</h2>
+    {% for tag in post.hashtags.all %}
+        <h2><a href="{% url 'post_by_tag' tag.name %}">{{ tag.name }}</a></h2>
+    {% empty %}
+    <p>Нет тегов</p>
+    {% endfor %}
+
+    <h2>Комментарии:</h2>
+    {% render_comment_form for post %}
+    {% render_comment_list for post %}
+{% endblock %}

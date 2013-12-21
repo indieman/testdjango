@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+{% block tags %}
+    Теги:
+    {% for tag in hashtags %}
+        <a href="{% url 'post_by_tag' tag.name %}">{{ tag.name }}</a>
+    {% empty %}
+        <p>нет тегов</p>
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+</body>
+</html>
