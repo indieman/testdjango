@@ -5,7 +5,8 @@ from models import Hashtag, Post
 
 
 class PostAdmin(admin.ModelAdmin):
-    pass
+    fields = ('title', 'created', 'text', 'hashtags')
+    filter_horizontal = ('hashtags',)
 
 
 class HashtagAdmin(admin.ModelAdmin):

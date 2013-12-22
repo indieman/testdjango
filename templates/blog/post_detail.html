@@ -12,6 +12,20 @@
     {% endfor %}
 
     <h2>Комментарии:</h2>
-    {% render_comment_form for post %}
+    {# {% render_comment_form for post %} #}
+    {% get_comment_form for post as form %}
+    <table>
+      <form action="{% comment_form_target %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <tr>
+          <td colspan="2">
+            <input type="submit" name="submit" value="Post">
+            <input type="submit" name="preview" value="Preview">
+          </td>
+        </tr>
+        <input type="hidden" name="next" value="{% url 'post_detail' post.pk %}" />
+      </form>
+    </table>
     {% render_comment_list for post %}
 {% endblock %}

@@ -4,8 +4,9 @@ from django.db import models
 from django.contrib.comments.models import Comment
 from django.contrib.contenttypes import generic
 
+
 class Hashtag(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, unique=True)        
 
     def __unicode__(self):
         return u'%s' % self.name
