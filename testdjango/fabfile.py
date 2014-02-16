@@ -26,6 +26,11 @@ env.path = '/srv/sites/%(project_name)s' % env
 env.manage_path = '/srv/sites/%(project_name)s/%(project_name)s' % env
 env.settings_path = '/srv/sites/%(project_name)s/%(project_name)s/%(project_name)s' % env
 
+env.log_path = '/srv/sites/%(project_name)s/log' % env
+env.static_path = '/srv/sites/%(project_name)s/static' % env
+env.media_path = '/srv/sites/%(project_name)s/media' % env
+env.branch = 'master'
+
 
 def create_password(length = 13):
     length = 13
@@ -96,11 +101,33 @@ def setup():
                                user=env.project_user,
                                stdout_logfile='%(path)s/log/testdjango.log' % env)
 
-    # Require an nginx server proxying to our app
-    require.nginx.proxied_site(env.project_name,
-                               port=80,
-                               docroot='%(path)s/static' % env,
-                               proxy_url='http://127.0.0.1:8888')
+    NGINX_CONFIG = '''
+        server {
+            listen      80;
+            server_name %(project_name)s;
+            gzip_vary on;
+
+            location /static {
+                alias %(static_path)s;
+            }
+
+            location /media {
+                alias %(media_path)s;
+            }
+
+            try_files $uri @proxied;
+
+            location @proxied {
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+                proxy_redirect off;
+                proxy_pass http://127.0.0.1:8888;
+            }
+
+            access_log  %(log_path)s/nginx_access.log;
+        }''' % env
+
+    require.nginx.site(env.project_name, template_contents=NGINX_CONFIG)
 
     remove_default_nginx()
 

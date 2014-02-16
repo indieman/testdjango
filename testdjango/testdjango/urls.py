@@ -11,7 +11,7 @@ urlpatterns = patterns('',
     url(r'^blog/', include('blog.urls')),
     (r'^comments/', include('django.contrib.comments.urls')),
     (r'^media/(?P<path>.*)$', 'django.views.static.serve',
-    {'document_root': settings.MEDIA_ROOT}),
+        {'document_root': settings.MEDIA_ROOT}),
 )
 
 urlpatterns += staticfiles_urlpatterns()
