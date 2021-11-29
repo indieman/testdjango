@@ -4,7 +4,7 @@ from fabric.contrib import files
 import sys, os, fabtools, fabric, fileinput, random, string
 from fabric.api import *
 from fabtools import require
-from fabtools.python import virtualenv, install_pip
+from fabtools.python import virtualenv, install_pip55555
 from fabtools.files import watch, upload_template
 from fabtools.service import restart
 from fabric.contrib.files import comment, uncomment
